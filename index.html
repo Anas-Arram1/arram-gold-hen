@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html manifest="cache.manifest">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سوني ال عرام - GoldHEN</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #161f30;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: system-ui, -apple-system, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 50px 20px;
+            user-select: none;
+            direction: rtl;
+        }
+
+        /* عنوان سوني ال عرام */
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 5px;
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            letter-spacing: 1px;
+        }
+
+        p.subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 35px;
+        }
+
+        /* صندوق الحالة */
+        #status-box {
+            font-size: 1.2rem;
+            margin: 20px auto;
+            padding: 16px 30px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            display: inline-block;
+            border: 1px solid #334155;
+            min-width: 320px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        /* شريط التحميل */
+        .progress-bar {
+            width: 320px;
+            height: 6px;
+            background: #1e293b;
+            margin: 20px auto;
+            border-radius: 4px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            transition: width 0.2s;
+        }
+
+        /* مؤشر الدوران للتشغيل التلقائي */
+        .spinner {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border: 3px solid rgba(56, 189, 248, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 0.8s linear infinite;
+            margin-top: 15px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- اسم صفحتك الخاصة -->
+    <h1>سوني ال عرام</h1>
+    <p class="subtitle">التشغيل التلقائي لـ GoldHEN (بدون إنترنت)</p>
+
+    <!-- صندوق رسائل التفعيل -->
+    <div id="status-box">
+        <span id="status">جاري تهيئة النظام...</span>
+        <br>
+        <div class="spinner" id="loader"></div>
+    </div>
+
+    <!-- شريط الكاش -->
+    <div class="progress-bar" id="pbar">
+        <div class="progress-fill" id="pfill"></div>
+    </div>
+
+    <script>
+        const status = document.getElementById("status");
+        const pbar = document.getElementById("pbar");
+        const pfill = document.getElementById("pfill");
+        const loader = document.getElementById("loader");
+
+        let hasExecuted = false;
+
+        // دالة تفعيل GoldHEN تلقائياً
+        function autoRunGoldHEN() {
+            if (hasExecuted) return;
+            hasExecuted = true;
+
+            status.innerText = "جاري تفعيل GoldHEN تلقائياً...";
+            
+            // انتظر ثانية واحدة ثم شغّل كود الثغرة
+            setTimeout(() => {
+                try {
+                    // استدعاء دالة الثغرة الخاصة بجهازك هنا (مثال: runExploit();)
+                    
+                    status.innerText = "تم تفعيل GoldHEN بنجاح! استمتع باللعب.";
+                    loader.style.display = "none";
+                } catch (e) {
+                    status.innerText = "حدث خطأ أثناء التفعيل، أعد تشغيل المتصفح.";
+                }
+            }, 1000);
+        }
+
+        // إدارة التخزين التلقائي والتشغيل المباشر بدون إنترنت
+        if (window.applicationCache) {
+            // في حالة كان الكاش محفوظ مسبقاً (Offline)
+            window.applicationCache.addEventListener('noupdate', () => {
+                autoRunGoldHEN();
+            });
+
+            // في حالة عدم وجود اتصال بالنت (يعمل مباشرة من الذاكرة)
+            window.applicationCache.addEventListener('error', () => {
+                autoRunGoldHEN();
+            });
+
+            // أثناء أول مرة يتم تحميل الكاش
+            window.applicationCache.addEventListener('downloading', () => {
+                status.innerText = "جاري حفظ الصفحة في الجهاز لأول مرة...";
+                pbar.style.display = "block";
+            });
+
+            window.applicationCache.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    let percent = Math.round((e.loaded / e.total) * 100);
+                    pfill.style.width = percent + "%";
+                    status.innerText = `جاري التثبيت في الذاكرة: ${percent}%`;
+                }
+            });
+
+            // فور اكتمال التخزين لأول مرة يتم التشغيل تلقائياً
+            window.applicationCache.addEventListener('cached', () => {
+                pbar.style.display = "none";
+                status.innerText = "تم حفظ الكاش بنجاح في السوني!";
+                setTimeout(autoRunGoldHEN, 1000);
+            });
+        } else {
+            // تشغيل مباشر كاحتياط
+            window.onload = () => {
+                setTimeout(autoRunGoldHEN, 1000);
+            };
+        }
+    </script>
+
+    <!-- ضع ملفات الثغرة الخاصة بإصدارك هنا لتستدعيها الصفحة -->
+    <!-- <script src="exploit.js"></script> -->
+</body>
+</html>
