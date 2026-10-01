@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html manifest="cache.manifest">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سوني ال عرام - GoldHEN 9.00</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #161f30;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: system-ui, -apple-system, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 50px 20px;
+            user-select: none;
+            direction: rtl;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 5px;
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            letter-spacing: 1px;
+        }
+
+        p.subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        #status-box {
+            font-size: 1.2rem;
+            margin: 20px auto;
+            padding: 16px 30px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            display: inline-block;
+            border: 1px solid #334155;
+            min-width: 320px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-bar {
+            width: 320px;
+            height: 6px;
+            background: #1e293b;
+            margin: 20px auto;
+            border-radius: 4px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            transition: width 0.2s;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            border: 3px solid rgba(56, 189, 248, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 0.8s linear infinite;
+            margin-top: 15px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>سوني ال عرام</h1>
+    <p class="subtitle">التشغيل التلقائي لـ GoldHEN 9.00 (بدون إنترنت)</p>
+
+    <div id="status-box">
+        <span id="status">جاري تهيئة النظام...</span>
+        <br>
+        <div class="spinner" id="loader"></div>
+    </div>
+
+    <div class="progress-bar" id="pbar">
+        <div class="progress-fill" id="pfill"></div>
+    </div>
+
+    <script>
+        // تعريف اسم ملف البايلود لملفات الثغرة
+        var PLcache = "goldhen_2.3_900.bin";
+        var payload = "goldhen_2.3_900.bin";
+
+        const status = document.getElementById("status");
+        const pbar = document.getElementById("pbar");
+        const pfill = document.getElementById("pfill");
+        const loader = document.getElementById("loader");
+
+        let executed = false;
+
+        // دالة تحميل السكربتات بالتتابع وبدون تعليق
+        function loadScript(src, callback) {
+            var s = document.createElement('script');
+            s.src = src;
+            s.onload = callback;
+            s.onerror = function() {
+                status.innerText = "خطأ في تحميل: " + src;
+            };
+            document.body.appendChild(s);
+        }
+
+        // دالة تشغيل الثغرة التلقائية بالترتيب المطلوب
+        function runExploitChain() {
+            if (executed) return;
+            executed = true;
+
+            status.innerText = "جاري تفعيل الثغرة... انتظر قليلاً";
+
+            loadScript("int64.js", function() {
+                loadScript("rop.js", function() {
+                    loadScript("kexploit.js", function() {
+                        loadScript("webkit.js", function() {
+                            // عند تحميل webkit يبدأ التنفيذ وتظهر رسالة الفلاشة المعروفة
+                        });
+                    });
+                });
+            });
+        }
+
+        // إدارة الكاش بدون إنترنت
+        if (window.applicationCache) {
+            window.applicationCache.addEventListener('downloading', () => {
+                status.innerText = "جاري حفظ الصفحة في الجهاز لأول مرة...";
+                pbar.style.display = "block";
+            });
+
+            window.applicationCache.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    let percent = Math.round((e.loaded / e.total) * 100);
+                    pfill.style.width = percent + "%";
+                    status.innerText = `جاري التثبيت في الذاكرة: ${percent}%`;
+                }
+            });
+
+            window.applicationCache.addEventListener('cached', () => {
+                pbar.style.display = "none";
+                status.innerText = "تم حفظ الكاش 100%! جاري التشغيل...";
+                setTimeout(runExploitChain, 1000);
+            });
+
+            window.applicationCache.addEventListener('noupdate', () => {
+                status.innerText = "الصفحة جاهزة (أوفلاين).. جاري التشغيل";
+                runExploitChain();
+            });
+
+            window.applicationCache.addEventListener('error', () => {
+                status.innerText = "وضع عدم الاتصال.. جاري التشغيل";
+                runExploitChain();
+            });
+        }
+
+        // تشغيل احتياطي في حال كان الجهاز غير متصل بالنت فوراً
+        window.onload = () => {
+            setTimeout(() => {
+                if (!executed) {
+                    runExploitChain();
+                }
+            }, 2000);
+        };
+    </script>
+</body>
+</html>
